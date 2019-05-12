@@ -91,14 +91,14 @@ class Librarian(object):
                                                        comment_IDs[wait_sentinel]))
 
             if write_to_file:
-                file.write("[ %d ] " % wait_sentinel + reddit_base.format(comment_subreddits[wait_sentinel],
+                file.write("[ {} ] ".format(wait_sentinel) + reddit_base.format(comment_subreddits[wait_sentinel],
                                                                      comment_IDs[wait_sentinel]) + "\n")
             if with_archive:
 
                 returnable_archives.append(self.archive(reddit_base.format(comment_subreddits[wait_sentinel],
                                            comment_IDs[wait_sentinel]), wait_sentinel))
                 if write_to_file:
-                    file.write(returnable_archives[wait_sentinel] + "\n")
+                    file.write("[ {} ] ".format(wait_sentinel) + returnable_archives[wait_sentinel] + "\n")
             wait_sentinel += 1
 
 
