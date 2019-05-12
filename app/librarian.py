@@ -5,6 +5,7 @@ import os
 import prawcore.exceptions
 import feedparser
 
+
 class Librarian(object):
 
     global reddit
@@ -101,20 +102,21 @@ class Librarian(object):
                     file.write("[ {} ] ".format(wait_sentinel) + returnable_archives[wait_sentinel] + "\n")
             wait_sentinel += 1
 
-
         if write_to_file:
+
             file.close()
         return returnable_bodies, returnable_links, returnable_archives
 
     def submission_scrape(self, user, write_to_file=False, with_archive=False):
 
         returnable_bodies = []
-        returnable_links =[]
+        returnable_links = []
         returnable_archives = []
         try:
 
             if write_to_file:
                 file = open("{}SubmissionCorpus.txt".format(user), "a")
+
         except IOError:
 
             print("Caught an Error!\nIOError")
@@ -123,6 +125,7 @@ class Librarian(object):
         reddit_base = "https://old.reddit.com/r/{}/{}"
         submission_IDs = []
         submission_subreddits = []
+        wait_sentinel = 0
         try:
 
             for submission in self.reddit.redditor(user).submissions.new(limit=None):
@@ -132,11 +135,12 @@ class Librarian(object):
                 submission_subreddits.append(submission.subreddit)
 
                 if write_to_file:
-                    file.write(submission.title + "\n")
+                    file.write("[ {} ] ".format(wait_sentinel) + submission.title + "\n")
                     file.write(submission.selftext + "\n")
+                    file.write( "[ {} ] ".format(wait_sentinel) + reddit_base.format(submission_subreddits[wait_sentinel],
+                                                                                     submission_IDs[wait_sentinel]) + "\n\n")
+                wait_sentinel += 1
 
-            if write_to_file:
-                file.close()
 
         except prawcore.exceptions.NotFound:
 
@@ -156,6 +160,11 @@ class Librarian(object):
                 returnable_archives.append(self.archive(reddit_base.format(submission_subreddits[wait_sentinel],
                                                                            submission_IDs[wait_sentinel]), wait_sentinel))
 
+                if write_to_file:
+                    file.write("[ {} ] ".format(wait_sentinel) + returnable_archives[wait_sentinel] + "\n")
             wait_sentinel += 1
 
+
+        if write_to_file:
+            file.close()
         return returnable_bodies, returnable_links, returnable_archives
