@@ -56,8 +56,10 @@ class Librarian(object):
             print("Caught an Error!\nIOError")
             exit(1)
 
+        reddit_base = "https://old.reddit.com/r/{}/{}"
         comment_IDs = []
         comment_subreddits = []
+        wait_sentinel = 0
         try:
 
             for comment in self.reddit.redditor(user).comments.new(limit=None):
@@ -67,10 +69,9 @@ class Librarian(object):
                 comment_subreddits.append(comment.subreddit)
 
                 if write_to_file:
-                    file.write(comment.body + "\n")
+                    file.write("[ {} ] ".format(wait_sentinel) + comment.body + "\n\n")
 
-            if write_to_file:
-                file.close()
+                wait_sentinel += 1
 
         except prawcore.exceptions.NotFound:
 
@@ -81,7 +82,6 @@ class Librarian(object):
 
             exit(1)
 
-        reddit_base = "https://old.reddit.com/r/{}/{}"
         wait_sentinel = 0
         for cid in comment_IDs:
             print("[ %d ] " % wait_sentinel + reddit_base.format(comment_subreddits[wait_sentinel],
@@ -90,12 +90,20 @@ class Librarian(object):
             returnable_links.append(reddit_base.format(comment_subreddits[wait_sentinel],
                                                        comment_IDs[wait_sentinel]))
 
+            if write_to_file:
+                file.write("[ %d ] " % wait_sentinel + reddit_base.format(comment_subreddits[wait_sentinel],
+                                                                     comment_IDs[wait_sentinel]) + "\n")
             if with_archive:
 
                 returnable_archives.append(self.archive(reddit_base.format(comment_subreddits[wait_sentinel],
                                            comment_IDs[wait_sentinel]), wait_sentinel))
+                if write_to_file:
+                    file.write(returnable_archives[wait_sentinel] + "\n")
             wait_sentinel += 1
 
+
+        if write_to_file:
+            file.close()
         return returnable_bodies, returnable_links, returnable_archives
 
     def submission_scrape(self, user, write_to_file=False, with_archive=False):
@@ -112,6 +120,7 @@ class Librarian(object):
             print("Caught an Error!\nIOError")
             exit(1)
 
+        reddit_base = "https://old.reddit.com/r/{}/{}"
         submission_IDs = []
         submission_subreddits = []
         try:
@@ -124,7 +133,7 @@ class Librarian(object):
 
                 if write_to_file:
                     file.write(submission.title + "\n")
-                    file.write(submission.selftext + "\n\n")
+                    file.write(submission.selftext + "\n")
 
             if write_to_file:
                 file.close()
@@ -137,7 +146,6 @@ class Librarian(object):
                 file.close()
             exit(1)
 
-        reddit_base = "https://old.reddit.com/r/{}/{}"
         wait_sentinel = 0
         for sid in submission_IDs:
 
