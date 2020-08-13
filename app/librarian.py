@@ -4,36 +4,22 @@ import praw
 import os
 import prawcore.exceptions
 import feedparser
+import configparser
 
 
 class Librarian(object):
 
-    global reddit
-
     def praw_auth(self):
-        credentials = open("archiver.config")
 
-        try:
-
-            client_id = credentials.readline(-1).strip()
-            client_secret = credentials.readline(-1).strip()
-            password = credentials.readline(-1).strip()
-            user_agent = credentials.readline(-1).strip()
-            username = credentials.readline(-1).strip()
-        except IOError:
-
-            print("Caught an error!\nis your archiver.config file missing?")
-            exit(1)
-
-        self.reddit = praw.Reddit(client_id=client_id,
-                                  client_secret=client_secret,
-                                  password=password,
-                                  user_agent=user_agent,
-                                  username=username)
+        config = configparser.ConfigParser()
+        config.read("../archiver.config")
+        self.reddit = praw.Reddit(client_id=config['DEFAULT']['CLIENT_ID'],
+                                  client_secret=config['DEFAULT']['CLIENT_SECRET'],
+                                  password=config['DEFAULT']['PASSWORD'],
+                                  user_agent=config['DEFAULT']['USER_AGENT'],
+                                  username=config['DEFAULT']['USERNAME'])
 
     def archive(self, url, num):
-
-        base = "https://archive.today/download/"
 
         ar = archiveis.capture(url)
 
